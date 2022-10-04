@@ -31,10 +31,10 @@ This section covers how to create, renew, and revoke a service token.
 
 You can now use the service token in your [Access policies](/cloudflare-one/policies/access/) and [device enrollment rules](/cloudflare-one/connections/connect-devices/warp/warp-settings/#device-enrollment-permissions). When creating these policies, select the `Service Auth` action to ensure that the identity provider login screen is not required for end users.
 
-For a simple RESTful backend application, your setup would include
-- an ALLOW rule that grant your developer team access to the service directly
-- a SERVICE AUTH rule that allows any request with your service token access to the application
-- an optional device enrollment rule with action SERVICE AUTH that allows the service token to be used from machines that have not connected with Access before
+For a simple RESTful backend application, your application's [Access policies](/cloudflare-one/policies/access/) would include:
+1. An **Allow** rule that grants your developer team access to the service after logging in
+2. A **Service Auth** rule with an include rule of **Service Token** and the name of your token as the value.  This rule allows any request with your service token to access the application.
+3. An optional [device enrollment rule](/cloudflare-one/connections/connect-devices/warp/warp-settings/#device-enrollment-permissions) with action **Service Auth**, with the same include rule as above.  This rule allows the service token to be used from machines that have not connected to Access before.
 
 
 ## Connect your service to Access
@@ -45,10 +45,7 @@ To authenticate to an Access application using your service token, add the follo
 
 `CF-Access-Client-Secret: <Client Secret>`
 
-Send one request with these headers to any URL belonging to your Access application.  If the service token is valid, Access will return the application's responose and a `CF_Authorization` cookie, containing a JWT scoped to the application.  All subsequent requests with that JWT cookie will succeed until the expiration of the JWT (default 
-TODO).
-
-Using the JWT cookie instead of the request headers makes programmatic interaction with the application easier and safer:  You can use standard cookie mechanisms, avoid sending the secret headers over the wire, and isolate knowledge of the secret headers to a part of your application.
+Send one request with these headers to any URL belonging to your Access application.  If the service token is valid, Access will return the application's responose and a `CF_Authorization` cookie, containing a JWT scoped to the application.  All subsequent requests with that JWT cookie will succeed until the expiration of the JWT, which is the duration configured in the application (default is 24 hours).  Using the JWT cookie instead of repeatedly sending the secret headers is safer and easier to implement. 
 
 ## Renew service tokens
 
